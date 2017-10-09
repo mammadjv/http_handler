@@ -1,14 +1,16 @@
 #include <QtWidgets>
 #include <QtNetwork>
 #include <QUrl>
+#include <QJsonDocument>
+#include <QJsonArray>
 
 #include "httpwindow.h"
 #include "ui_authenticationdialog.h"
 
 #ifndef QT_NO_SSL
-static const char defaultUrl[] = "https://www.qt.io/";
+static const char defaultUrl[] = "https://www.google.com/";
 #else
-static const char defaultUrl[] = "http://www.qt.io/";
+static const char defaultUrl[] = "http://www.google.com/";
 #endif
 static const char defaultFileName[] = "index.html";
 
@@ -92,8 +94,9 @@ void HttpWindow::startRequest(const QUrl &requestedUrl){
 
     reply = qnam.get(QNetworkRequest(url));
     connect(reply, &QNetworkReply::finished, this, &HttpWindow::httpFinished);
-    connect(reply, &QIODevice::readyRead, this, &HttpWindow::httpReadyRead);
-
+//    connect(reply, &QIODevice::readyRead, this, &HttpWindow::httpReadyRead);
+    connect(reply, SIGNAL(readyRead()), this, SLOT(httpReadyRead()));
+//    connect(reply, SIGNAL(readyRead()), this, SLOT(httpReadyRead()));
     ProgressDialog *progressDialog = new ProgressDialog(url, this);
     progressDialog->setAttribute(Qt::WA_DeleteOnClose);
     connect(progressDialog, &QProgressDialog::canceled, this, &HttpWindow::cancelDownload);
@@ -220,14 +223,24 @@ void HttpWindow::httpFinished()
     downloadButton->setEnabled(true);
 }
 
-void HttpWindow::httpReadyRead()
-{
+void HttpWindow::httpReadyRead(){
     // this slot gets called every time the QNetworkReply has new data.
     // We read all of its new data and write it into the file.
     // That way we use less RAM than when reading it at the finished()
     // signal of the QNetworkReply
-    if (file)
-        file->write(reply->readAll());
+    QByteArray data = "";
+    if (file){
+//        QList<QByteArray> headerList = reply->rawHeaderList();
+//        foreach(QByteArray head, headerList) {
+//            qDebug() << head << ":" << reply->rawHeader(head);
+//        }
+        qDebug() << reply->header(QNetworkRequest::ContentTypeHeader).toString();
+        data = reply->readAll();
+//        QJsonDocument jsdoc;
+//        QByteArray jsdoc = QJsonDocument::fromJson(data).toJson();
+//        qDebug() << jsdoc;
+        file->write(data);
+    }
 }
 
 void HttpWindow::enableDownloadButton()
