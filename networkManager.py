@@ -11,15 +11,11 @@ class NetManager(QObject):
     packet_received = pyqtSignal(str,str)
     def __init__(self):
         super().__init__()
-        self.httpConnection = Http()
-
-    # def address_validator(self, url):
-        # regex = r"[a-zA-Z]."
-        # if str(url).endswith('.com') or ('.com/' in str(url) and not str(url).startswith('.')):
-        #     print(url)
+        self.httpConnection = Http(disable_ssl_certificate_validation=True)
 
     @pyqtSlot(str,str)
     def on_url_clicked(self, url, method):
         print(url)
         resp, content = self.httpConnection.request(uri=url,method=method)
+        print(resp , content)
         self.packet_received.emit(str(resp),str(content))

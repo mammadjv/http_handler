@@ -33,6 +33,7 @@ class HttpView(QWidget):
             print('url_line is empty!')
             return
         self.text_area.setText("")
+        self.send_signal.emit(self.url_line.text(), 'HEAD')
         self.send_signal.emit(self.url_line.text(), 'OPTIONS')
         self.send_signal.emit(self.url_line.text(), 'GET')
 
@@ -49,7 +50,7 @@ class HttpView(QWidget):
     def initUI(self):
         self.setWindowTitle(self.title)
         self.setGeometry(self.left, self.top, self.width, self.height)
-        self.url_line.setText("http://www.varzesh3.com/")
+        self.url_line.setText("https://ceit.aut.ac.ir/smbweb.php")
         self.url_line.setGeometry(self.width/10, self.height/10, 7*self.width/10, self.height/20)
 
         self.submit_button.setGeometry(82*self.width/100, self.height/10, self.width/10, self.width/20)
